@@ -34,7 +34,11 @@ public class CharacterController : MonoBehaviour
     }
     private void FixedUpdate()
     {
-        if (!isGround) return;
+        if (!isGround)
+        {
+            return;
+        }
+        animator.transform.position = new Vector3(animator.transform.position.x, 0, animator.transform.position.z);
         mov = mov.normalized;
         if (Input.GetButton("Run"))
         {
@@ -44,20 +48,27 @@ public class CharacterController : MonoBehaviour
         {
             mov *= velocidad;
         }
+        animator.SetFloat("Velocidad", mov.magnitude / velocidad);
+
+
         //rb.MovePosition(transform.position + mov * Time.fixedDeltaTime);
         rb.velocity = new Vector3(mov.x, rb.velocity.y,mov.z);
         if (Input.GetButtonDown("Jump"))
         {
             isGround = false;
             rb.AddForce(transform.up * forceJump, forceModeJump);
+            animator.SetBool("Jump",true);
         }
+        
     }
+    public Animator animator;
 
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.collider.CompareTag(tagGround))
         {
             isGround = true;
+            animator.SetBool("Jump", false);
         }
     }
     private void OnCollisionExit(Collision collision)
