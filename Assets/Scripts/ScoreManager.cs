@@ -16,4 +16,5 @@ public class ScoreManager : MonoBehaviour
         score += cantidad;
         CanvasManager.instance.UpdateScore(score);
     } 
+    public int GetScore() { return score; }
 }

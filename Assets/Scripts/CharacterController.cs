@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,13 +10,18 @@ public class CharacterController : MonoBehaviour
     Rigidbody rb;
     public float velocidad = 1;
     public ForceMode forceModeMove;
-    Vector3 mov;
+    [HideInInspector] public Vector3 mov;
 
     [Header("Salto")]
     public ForceMode forceModeJump;
     public float forceJump = 4;
     bool isGround;
     public string tagGround = "Suelo";
+
+    internal void Kill()
+    {
+        CanvasManager.instance.KillPlayer();
+    }
 
     private void Start()
     {
@@ -26,7 +32,7 @@ public class CharacterController : MonoBehaviour
     {
         mov = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical"));
 
-        if (mov.magnitude > 0.1f)
+        if (mov.magnitude > 0.1f && !pickUp && isGround)
         {
             float ang = Mathf.Atan2(mov.x, mov.z) * Mathf.Rad2Deg;
             rb.rotation = Quaternion.Euler(0, ang, 0);
@@ -34,7 +40,7 @@ public class CharacterController : MonoBehaviour
     }
     private void FixedUpdate()
     {
-        if (!isGround)
+        if (!isGround || pickUp)
         {
             return;
         }
@@ -77,5 +83,12 @@ public class CharacterController : MonoBehaviour
         {
             isGround = false;
         }
+    }
+
+    public bool pickUp;
+    public void AnimPickUp(bool or)
+    {
+        animator.SetBool("PickUp",or);
+        pickUp = or;
     }
 }
