@@ -9,7 +9,7 @@ public class Guardian : MonoBehaviour
     Transform destino;
     public Transform[] routePoints;
     int actualPointDes;
-    public float velocidad = 5;
+    public float velocidad = 5, velocidadGiro = 10;
     
     [Header("Player settings")]
     Transform player;
@@ -44,12 +44,25 @@ public class Guardian : MonoBehaviour
                 destino = player;
                 if (Vector3.Distance(transform.position, player.position) < distanDisparo)
                 {
-                    if(!IsInvoking(nameof(Shoot)))
+                    if (navMeshAgent.updateRotation == true)
+                    {
+                        navMeshAgent.updateRotation = false;
+                    }
+                    else
+                    {
+                        Vector3 dir = (player.position - transform.position).normalized;
+                        Quaternion newRot = Quaternion.FromToRotation(transform.forward, dir) * transform.rotation;
+                        transform.rotation = Quaternion.Euler(0,newRot.eulerAngles.y,0);
+                        print(dir.y);
+                    }
+
+                    if (!IsInvoking(nameof(Shoot)))
                         InvokeRepeating(nameof(Shoot), 0, frecuanciaDisparo);
                 }
                 else
                 {
                     CancelInvoke(nameof(Shoot));
+                    navMeshAgent.updateRotation = true;
                 }
             }
             else
@@ -66,16 +79,17 @@ public class Guardian : MonoBehaviour
     public void ChangePoint()
     {
         CancelInvoke(nameof(Shoot));
+        if (destino == null || destino == player)
+        {
+            destino = routePoints[actualPointDes];
+        }
         float dis = Vector3.Distance(transform.position, destino.position);
         if (dis < velocidad && destino != null)
         {
             actualPointDes = Random.Range(0,routePoints.Length);
             destino = null;
         }
-        if (destino == null || destino == player)
-        {
-            destino = routePoints[actualPointDes];
-        }
+        
     }
 
     void Shoot()
@@ -86,5 +100,10 @@ public class Guardian : MonoBehaviour
     {
         Gizmos.color = Color.red;
         Gizmos.DrawRay(ray);
+    }
+
+    public void Callar()
+    {
+        GetComponent<AudioSource>().Stop();
     }
 }

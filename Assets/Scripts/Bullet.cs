@@ -6,13 +6,14 @@ using UnityEngine;
 [RequireComponent(typeof(Collider))]
 public class Bullet : MonoBehaviour
 {
-    Rigidbody rigidbody;
+    Rigidbody rb;
     public float fuerza;
     public ForceMode forceMode;
     private void Start()
     {
-        rigidbody = GetComponent<Rigidbody>();
-        rigidbody.AddForce(transform.forward * fuerza, forceMode);
+        rb = GetComponent<Rigidbody>();
+        rb.AddForce(transform.forward * fuerza, forceMode);
+        Invoke(nameof(Quemar), 10);
     }
 
     private void OnTriggerEnter(Collider other)
@@ -25,5 +26,10 @@ public class Bullet : MonoBehaviour
         {
             Destroy(gameObject);
         }
+    }
+
+    void Quemar()
+    {
+        Destroy(gameObject);
     }
 }

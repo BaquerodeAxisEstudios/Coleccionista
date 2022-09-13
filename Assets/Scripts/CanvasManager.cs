@@ -32,8 +32,19 @@ public class CanvasManager : MonoBehaviour
 
     public GameObject panelKill;
     public Text endScoreTxt, recordScoreTxt;
+
+    public AudioClip audioClipFail;
     public void KillPlayer()
     {
+        //Control de audio
+        Guardian[] guardianes = FindObjectsOfType<Guardian>();
+        foreach (Guardian item in guardianes)
+        {
+            item.Callar();
+        }
+        AudioSource.PlayClipAtPoint(audioClipFail, Vector3.zero, .8f);
+        
+        Time.timeScale = 0;
         for (int i = 0; i < paneles.Count; i++)
         {
             paneles[i].SetActive(false);
@@ -44,20 +55,25 @@ public class CanvasManager : MonoBehaviour
         int score = ScoreManager.instance.GetScore();
         endScoreTxt.text = "Puntaje: " + score.ToString();
         
-        if (PlayerPrefs.GetInt("Score",0) < score)
+        if (PlayerPrefs.GetInt("MaxScore",0) <= score)
         {
-            recordScoreTxt.gameObject.SetActive(true);
-            recordScoreTxt.text = "Mejor puntaje: " + PlayerPrefs.GetInt("Score", 0).ToString();
-            PlayerPrefs.SetInt("Score", score);
+            PlayerPrefs.SetInt("MaxScore", score);
         }
+
+        if (PlayerPrefs.GetInt("MaxScore", 0) == 0) 
+            return;
+        recordScoreTxt.text = "Mejor puntaje: " + PlayerPrefs.GetInt("MaxScore", 0).ToString();
+        recordScoreTxt.gameObject.SetActive(true);
     }
 
     public void Restart()
     {
+        Time.timeScale = 1;
         SceneManager.LoadScene(1);
     }
     public void GoHome()
     {
+        Time.timeScale = 1;
         SceneManager.LoadScene(0);
     }
 }
